@@ -267,39 +267,67 @@ if (subtitle) {
 }
 
 
-// ---- 9. FLOATING EMOJIS ON SESSION COMPLETE ----
+// ---- 9. PHASE TRANSITION EFFECTS ----
 const _origSwitchPhase2 = switchPhase;
 switchPhase = function() {
+  const wasBreak = isBreak;
   _origSwitchPhase2();
-  launchFloatingEmojis();
+  // After switchPhase, isBreak has flipped
+  if (isBreak) {
+    transitionToBreak();
+  } else {
+    transitionToWork();
+  }
+  // Smoothly shift particle colors
+  if (typeof updateParticleColors === 'function') {
+    if (isBreak) {
+      particleColor = { r: 74, g: 222, b: 128 }; // green for break
+    } else {
+      updateParticleColors(); // back to accent
+    }
+  }
 };
 
-function launchFloatingEmojis() {
-  const emojis = isBreak ? ['☕', '🌿', '😌', '🎵', '🧘'] : ['🔥', '💪', '🚀', '⚡', '🎯'];
+function transitionToBreak() {
+  // Full-screen calming breath pulse
+  const overlay = document.createElement('div');
+  overlay.className = 'phase-transition break-transition';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('animationend', () => overlay.remove());
 
-  for (let i = 0; i < 12; i++) {
-    const emoji = document.createElement('div');
-    emoji.className = 'floating-emoji';
-    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-    emoji.style.left = `${10 + Math.random() * 80}vw`;
-    emoji.style.setProperty('--drift', `${(Math.random() - 0.5) * 100}px`);
-    emoji.style.setProperty('--delay', `${Math.random() * 0.5}s`);
-    emoji.style.setProperty('--duration', `${2 + Math.random() * 2}s`);
-    emoji.style.fontSize = `${1.5 + Math.random() * 1.5}rem`;
-    document.body.appendChild(emoji);
-    emoji.addEventListener('animationend', () => emoji.remove());
+  // Gentle floating particles (leaves/sparkles)
+  for (let i = 0; i < 20; i++) {
+    const leaf = document.createElement('div');
+    leaf.className = 'break-leaf';
+    leaf.style.left = `${Math.random() * 100}vw`;
+    leaf.style.setProperty('--sway', `${(Math.random() - 0.5) * 80}px`);
+    leaf.style.setProperty('--delay', `${Math.random() * 1}s`);
+    leaf.style.setProperty('--duration', `${3 + Math.random() * 3}s`);
+    leaf.style.setProperty('--size', `${4 + Math.random() * 6}px`);
+    document.body.appendChild(leaf);
+    leaf.addEventListener('animationend', () => leaf.remove());
+  }
+}
+
+function transitionToWork() {
+  // Energizing flash + rising sparks
+  const overlay = document.createElement('div');
+  overlay.className = 'phase-transition work-transition';
+  document.body.appendChild(overlay);
+  overlay.addEventListener('animationend', () => overlay.remove());
+
+  // Rising energy sparks
+  for (let i = 0; i < 15; i++) {
+    const spark = document.createElement('div');
+    spark.className = 'work-spark';
+    spark.style.left = `${10 + Math.random() * 80}vw`;
+    spark.style.setProperty('--delay', `${Math.random() * 0.4}s`);
+    spark.style.setProperty('--duration', `${1 + Math.random() * 1.5}s`);
+    spark.style.setProperty('--drift', `${(Math.random() - 0.5) * 60}px`);
+    document.body.appendChild(spark);
+    spark.addEventListener('animationend', () => spark.remove());
   }
 }
 
 
-// ---- 10. ELECTRIC BORDER ON FOCUS INPUTS ----
-document.querySelectorAll('input, select').forEach(input => {
-  input.addEventListener('focus', () => {
-    input.closest('.time-setting, .todo-input-row, .tag-input-wrapper, .todo-options-row')
-      ?.classList.add('electric-focus');
-  });
-  input.addEventListener('blur', () => {
-    input.closest('.time-setting, .todo-input-row, .tag-input-wrapper, .todo-options-row')
-      ?.classList.remove('electric-focus');
-  });
-});
+// ---- 10. (removed - electric focus effect) ----
